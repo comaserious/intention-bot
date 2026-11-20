@@ -34,3 +34,10 @@ python -m intent_scorer.evaluate --rotations 1 4
 `eval/dataset.toml`(24 케이스) 기준 top1, set_match, none 정확도와 평균/중앙값/p95/최대 시간(초)을 표로 출력합니다. 테스트: `python -m pytest`.
 
 설계: `docs/superpowers/specs/`, 계획: `docs/superpowers/plans/`. `spikes/`는 일회용 실험 코드입니다.
+
+## 테스트 화면
+```powershell
+$env:INTENT_BASE_URL = "<서버 주소>/v1"
+python -m intent_scorer.webapp --port 8000   # http://127.0.0.1:8000
+```
+발화를 넣어 점수 막대와 소요 시간을 보고, 순서 회전 횟수·기준값·의도 정의(화면에서만 적용)를 바꿔볼 수 있습니다.

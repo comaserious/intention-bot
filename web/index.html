@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>의도 점수 테스트</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #6b7280; --line: #e3e6ec;
+    --accent: #2f6fed; --bar: #c9d6f7; --bar-hit: #2f6fed; --none: #b9bfca; --err: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14171d; --card: #1c2029; --text: #e6e9ef; --muted: #98a1b2; --line: #2b313d;
+            --accent: #6a9bff; --bar: #2c3a5c; --bar-hit: #6a9bff; --none: #4a5262; --err: #ff7b6b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 "Segoe UI", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  textarea, select { width: 100%; font: inherit; color: inherit; background: var(--bg);
+         border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  textarea { resize: vertical; min-height: 72px; }
+  textarea:focus, select:focus, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; margin-top: 12px; }
+  .row > label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .row select { width: auto; min-width: 90px; }
+  .grow { flex: 1; min-width: 160px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  button.run { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 10px 22px;
+         font: inherit; font-weight: 600; cursor: pointer; }
+  button.run:disabled { opacity: .6; cursor: progress; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px;
+          padding: 4px 12px; font-size: 13px; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .bar-row { display: grid; grid-template-columns: 110px 1fr 54px; gap: 10px; align-items: center; margin: 8px 0; }
+  .bar-row .name { font-size: 14px; }
+  .track { background: var(--line); border-radius: 6px; height: 18px; overflow: hidden; }
+  .fill { height: 100%; background: var(--bar); border-radius: 6px; transition: width .25s; }
+  .hit .fill { background: var(--bar-hit); }
+  .hit .name, .hit .val { font-weight: 700; }
+  .none .fill { background: var(--none); }
+  .val { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .verdict { font-size: 16px; margin-bottom: 8px; }
+  .tag { display: inline-block; background: var(--bar-hit); color: #fff; border-radius: 6px; padding: 1px 10px; margin-right: 6px; font-size: 14px; }
+  .tag.none { background: var(--none); }
+  .err { color: var(--err); }
+  details summary { cursor: pointer; font-weight: 600; }
+  .def { margin-top: 12px; }
+  .def label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .def textarea { min-height: 64px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td { padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+  td.u { cursor: pointer; } td.u:hover { color: var(--accent); }
+  td.t { color: var(--muted); white-space: nowrap; text-align: right; }
+  .empty { color: var(--muted); font-size: 13px; }
+  @media (max-width: 520px) { .bar-row { grid-template-columns: 84px 1fr 48px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>의도 점수 테스트</h1>
+  <div class="sub" id="model">불러오는 중…</div>
+
+  <section class="card">
+    <textarea id="utt" placeholder="사용자 발화를 입력하세요 (Ctrl+Enter로 실행)"></textarea>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <label>순서 회전 횟수<select id="rot"></select></label>
+      <label class="grow">복합 질의 기준값 <b id="thv">0.20</b>
+        <input id="th" type="range" min="0.05" max="0.9" step="0.05" value="0.2"></label>
+      <button class="run" id="run">점수 보기</button>
+    </div>
+  </section>
+
+  <section class="card" id="result" aria-live="polite">
+    <div class="empty">발화를 입력하고 실행하면 결과가 여기에 표시됩니다.</div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>의도 정의 수정 (이 화면에서만 적용)</summary>
+      <div id="defs"></div>
+      <div class="row"><button class="chip" id="reset">기본값으로 되돌리기</button></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <div style="font-weight:600;margin-bottom:8px">최근 실행</div>
+    <div id="hist" class="empty">아직 없음</div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const SAMPLES = [
+  "경북으로 이사 오는 청년도 월세 지원을 받을 수 있나요?",
+  "노인맞춤돌봄서비스는 어떻게 신청하나요?",
+  "예비창업자도 지원사업에 신청할 수 있나요?",
+  "계획입지와 개별입지는 어떻게 다른가요?",
+  "서울에서 경북으로 이사 가는데 아이 돌봄 지원도 받을 수 있나요?",
+  "안녕하세요"
+];
+let defaults = [], history = [];
+
+function intents() {
+  return [...document.querySelectorAll("#defs textarea")].map(t => ({name: t.dataset.name, definition: t.value}));
+}
+function renderDefs(list) {
+  $("defs").innerHTML = "";
+  list.forEach(i => {
+    const d = document.createElement("div"); d.className = "def";
+    const l = document.createElement("label"); l.textContent = i.name;
+    const t = document.createElement("textarea"); t.value = i.definition; t.dataset.name = i.name;
+    d.append(l, t); $("defs").append(d);
+  });
+}
+function bar(name, v, hit, none) {
+  const pct = (v * 100).toFixed(1);
+  return `<div class="bar-row ${hit ? "hit" : ""} ${none ? "none" : ""}"><div class="name"></div>
+    <div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="val">${v.toFixed(2)}</div></div>`;
+}
+function show(r) {
+  const entries = Object.entries(r.scores);
+  const none = r.selected.length === 0;
+  const el = $("result");
+  el.innerHTML = `<div class="verdict">${none
+      ? '<span class="tag none">해당없음</span> 어느 서비스에도 해당하지 않거나 불분명'
+      : r.selected.map(n => `<span class="tag"></span>`).join("")}</div>
+    ${entries.map(([n, v]) => bar(n, v, r.selected.includes(n), n === "해당없음")).join("")}
+    <div class="meta"><span>소요 시간 <b>${r.latency_ms.toFixed(0)} ms</b></span><span>모델 호출 ${r.calls}회</span></div>`;
+  // fill names via textContent (no HTML injection from custom intent names)
+  el.querySelectorAll(".bar-row .name").forEach((d, i) => d.textContent = entries[i][0]);
+  el.querySelectorAll(".verdict .tag:not(.none)").forEach((d, i) => d.textContent = r.selected[i]);
+}
+function showError(msg) {
+  $("result").innerHTML = '<div class="err"></div>';
+  $("result").firstChild.textContent = msg;
+}
+function renderHistory() {
+  if (!history.length) return;
+  const t = document.createElement("table");
+  history.forEach(h => {
+    const tr = document.createElement("tr");
+    const u = document.createElement("td"); u.className = "u"; u.textContent = h.utt; u.onclick = () => { $("utt").value = h.utt; $("utt").focus(); };
+    const s = document.createElement("td"); s.textContent = h.sel.length ? h.sel.join(", ") : "해당없음";
+    const ms = document.createElement("td"); ms.className = "t"; ms.textContent = h.ms.toFixed(0) + " ms";
+    tr.append(u, s, ms); t.append(tr);
+  });
+  $("hist").className = ""; $("hist").replaceChildren(t);
+}
+async function run() {
+  const utt = $("utt").value;
+  $("run").disabled = true; $("run").textContent = "계산 중…";
+  try {
+    const res = await fetch("/api/score", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({utterance: utt, rotations: +$("rot").value, threshold: +$("th").value, intents: intents()})});
+    const data = await res.json();
+    if (!res.ok) return showError(data.error || "오류가 발생했습니다");
+    show(data);
+    history.unshift({utt, sel: data.selected, ms: data.latency_ms}); history = history.slice(0, 10); renderHistory();
+  } catch (e) { showError("요청 실패: " + e.message); }
+  finally { $("run").disabled = false; $("run").textContent = "점수 보기"; }
+}
+async function init() {
+  const d = await (await fetch("/api/intents")).json();
+  defaults = d.intents; $("model").textContent = "모델: " + d.model;
+  renderDefs(defaults);
+  for (let k = 1; k <= defaults.length; k++) {
+    const o = document.createElement("option"); o.value = k; o.textContent = k + "회" + (k === defaults.length ? " (권장)" : "");
+    if (k === defaults.length) o.selected = true; $("rot").append(o);
+  }
+  SAMPLES.forEach(s => { const b = document.createElement("button"); b.className = "chip"; b.textContent = s;
+    b.onclick = () => { $("utt").value = s; run(); }; $("chips").append(b); });
+}
+$("run").onclick = run;
+$("utt").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) run(); });
+$("th").oninput = () => $("thv").textContent = (+$("th").value).toFixed(2);
+$("reset").onclick = () => renderDefs(defaults);
+init().catch(e => showError("초기화 실패: " + e.message));
+</script>
+</body>
+</html>
