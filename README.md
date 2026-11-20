@@ -9,6 +9,7 @@ pip install openai pytest
 $env:INTENT_BASE_URL = "https://your-host.example/sllm/v1"   # 필수
 $env:INTENT_API_KEY = "EMPTY_KEY"                                   # 선택
 $env:INTENT_MODEL = "google/gemma-4-26B-A4B-it"                     # 선택
+$env:INTENT_TIMEOUT = "30"                                          # 선택, 초 (기본 30)
 ```
 
 ## 사용
@@ -17,7 +18,8 @@ from openai import OpenAI
 from intent_scorer import IntentScorer, load_intents, load_settings, select_intents
 
 s = load_settings()
-scorer = IntentScorer(OpenAI(base_url=s.base_url, api_key=s.api_key), s.model,
+scorer = IntentScorer(OpenAI(base_url=s.base_url, api_key=s.api_key,
+                             timeout=s.timeout, max_retries=0), s.model,
                       load_intents("config/intents.toml"), rotations=4, max_concurrency=4)
 scores = scorer.score("경북으로 이사 오는 청년도 월세 지원을 받을 수 있나요?")
 select_intents(scores, threshold=0.2)   # 복합 질의면 여러 개, 해당없음이면 []

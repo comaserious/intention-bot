@@ -41,6 +41,9 @@ class IntentScorer:
     def __init__(self, client, model: str, intents: Sequence[Intent], rotations: int | None = None,
                  max_concurrency: int = 4):
         self.client, self.model, self.intents = client, model, list(intents)
+        names = [it.name for it in self.intents]
+        if any(not n.strip() or "\n" in n or n == NONE_LABEL for n in names) or len(set(names)) != len(names):
+            raise ValueError(f"의도 이름은 비어 있지 않고, 줄바꿈 없이, 서로 달라야 하며 '{NONE_LABEL}'일 수 없습니다: {names}")
         self.rotations = len(self.intents) if rotations is None else rotations
         if not 1 <= self.rotations <= len(self.intents):
             raise ValueError(f"rotations 는 1..{len(self.intents)} 이어야 합니다 (받은 값: {self.rotations})")

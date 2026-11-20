@@ -19,3 +19,9 @@ def test_load_settings_reads_env():
 def test_load_settings_missing_base_url_raises():
     with pytest.raises(ValueError, match="INTENT_BASE_URL"):
         load_settings({})
+
+
+def test_load_settings_timeout_defaults_and_overrides():
+    base = {"INTENT_BASE_URL": "http://x/v1"}
+    assert load_settings(base).timeout == 30.0
+    assert load_settings({**base, "INTENT_TIMEOUT": "5"}).timeout == 5.0

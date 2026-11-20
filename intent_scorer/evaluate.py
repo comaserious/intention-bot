@@ -75,7 +75,7 @@ def main(argv=None) -> None:
     from openai import OpenAI
 
     s = load_settings()
-    client = OpenAI(base_url=s.base_url, api_key=s.api_key)
+    client = OpenAI(base_url=s.base_url, api_key=s.api_key, timeout=s.timeout, max_retries=0)
     intents, cases = load_intents(a.intents), load_cases(a.dataset)
     results = {f"rot={k}": run_eval(IntentScorer(client, s.model, intents, rotations=k), cases, a.threshold)
                for k in a.rotations}

@@ -128,3 +128,9 @@ def test_select_intents():
     scores = {"정착지원": 0.5, "생활지원": 0.25, "소상공인지원": 0.05, "공장설립지원": 0.0, NONE_LABEL: 0.2}
     assert select_intents(scores) == ["정착지원", "생활지원"]
     assert select_intents({"정착지원": 0.3, "생활지원": 0.1, NONE_LABEL: 0.6}) == []
+
+
+@_pytest.mark.parametrize("names", [["a", "a", "b"], ["a", NONE_LABEL], ["a", ""], ["a", "b\nc"]])
+def test_invalid_intent_names_raise_value_error(names):
+    with _pytest.raises(ValueError):
+        IntentScorer(FakeClient(always_a), "m", [Intent(n, "d") for n in names])
