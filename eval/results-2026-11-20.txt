@@ -1,0 +1,4 @@
+method       n    top1  set_match   none  mean(s)  median(s)  p95(s)  max(s)
+rot=1       24    1.00       0.83   1.00    0.072      0.071   0.089   0.099
+rot=4       24    1.00       0.92   1.00    0.113      0.083   0.319   0.377
+

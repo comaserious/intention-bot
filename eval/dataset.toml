@@ -1,0 +1,95 @@
+[[case]]
+utterance = "30대, 김천혁신도시로 직장 이전 예정. 근처 이사할 지역 추천해줘"
+expected = ["정착지원"]
+
+[[case]]
+utterance = "전입 장려금(정착지원금)은 언제 지급되나요?"
+expected = ["정착지원"]
+
+[[case]]
+utterance = "경북으로 이사 오는 청년도 월세 지원을 받을 수 있나요?"
+expected = ["정착지원"]
+
+[[case]]
+utterance = "정착지원금을 받은 뒤 다른 지역으로 이사하면 돌려줘야 하나요?"
+expected = ["정착지원"]
+
+[[case]]
+utterance = "제가 75살이고 혼자 살고 있는데, 기초연금을 받을 수 있을까요?"
+expected = ["생활지원"]
+
+[[case]]
+utterance = "노인맞춤돌봄서비스는 어떻게 신청하나요?"
+expected = ["생활지원"]
+
+[[case]]
+utterance = "기초연금은 누가 받을 수 있고 얼마를 받나요?"
+expected = ["생활지원"]
+
+[[case]]
+utterance = "아이돌봄서비스 신청 후 대기가 길어요. 어떻게 해야 하나요?"
+expected = ["생활지원"]
+
+[[case]]
+utterance = "남편 직장 때문에 김천으로 이사 가는데, 음식점 창업하려면 어떻게 해야 해?"
+expected = ["소상공인지원"]
+
+[[case]]
+utterance = "경북 소상공인 정책자금의 금리와 이차보전은 어떻게 되나요?"
+expected = ["소상공인지원"]
+
+[[case]]
+utterance = "아직 사업자등록 전인 예비창업자도 지원사업에 신청할 수 있나요?"
+expected = ["소상공인지원"]
+
+[[case]]
+utterance = "청년 창업 지원사업의 \"청년\" 나이 기준은 어떻게 되나요?"
+expected = ["소상공인지원"]
+
+[[case]]
+utterance = "경북에 작은 식품 제조공장을 세우려고 하는데, 공장을 지으려면 어떤 조건이 필요한가요?"
+expected = ["공장설립지원"]
+
+[[case]]
+utterance = "공장설립 AI 사전진단 결과는 법적 효력이 있나요?"
+expected = ["공장설립지원"]
+
+[[case]]
+utterance = "계획입지(산업단지)와 개별입지는 어떻게 다른가요?"
+expected = ["공장설립지원"]
+
+[[case]]
+utterance = "도장이나 절삭 공정이 있으면 대기·폐수 배출시설 허가를 받아야 하나요?"
+expected = ["공장설립지원"]
+
+[[case]]
+utterance = "서울에서 경북으로 이사 가는데 아이 돌봄 지원도 받을 수 있나요?"
+expected = ["생활지원", "정착지원"]
+
+[[case]]
+utterance = "귀농해서 정착하려는데 식당 창업자금도 받을 수 있나요?"
+expected = ["소상공인지원", "정착지원"]
+
+[[case]]
+utterance = "소상공인인데 공장도 새로 지으려고 합니다. 받을 수 있는 보조금 알려주세요"
+expected = ["공장설립지원", "소상공인지원"]
+
+[[case]]
+utterance = "김천으로 이사 왔는데 혼자 사시는 어머니 돌봄서비스 신청하고 싶어요"
+expected = ["생활지원", "정착지원"]
+
+[[case]]
+utterance = "지원금 받을 수 있나요?"
+expected = []
+
+[[case]]
+utterance = "안녕하세요"
+expected = []
+
+[[case]]
+utterance = "오늘 점심 뭐 먹지"
+expected = []
+
+[[case]]
+utterance = "주민등록등본은 어떻게 발급받나요?"
+expected = []
