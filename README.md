@@ -5,12 +5,11 @@
 ## 준비
 ```powershell
 conda activate intention-bot
-pip install openai pytest
-$env:INTENT_BASE_URL = "https://your-host.example/sllm/v1"   # 필수
-$env:INTENT_API_KEY = "EMPTY_KEY"                                   # 선택
-$env:INTENT_MODEL = "google/gemma-4-26B-A4B-it"                     # 선택
-$env:INTENT_TIMEOUT = "30"                                          # 선택, 초 (기본 30)
+pip install openai pytest python-dotenv
+Copy-Item .env.example .env     # 복사 후 .env 에 실제 주소를 입력 (.env 는 git 제외)
 ```
+`.env` 항목: `BASE_URL`(필수), `API_KEY`(선택, 기본 `EMPTY_KEY`), `MODEL`(선택, 기본 `google/gemma-4-26B-A4B-it`).
+`INTENT_BASE_URL` 처럼 `INTENT_` 접두사를 붙인 이름이나 실제 환경변수를 쓰면 `.env` 보다 우선합니다. `INTENT_TIMEOUT`(초, 기본 30)은 환경변수로만 지정합니다.
 
 ## 사용
 ```python

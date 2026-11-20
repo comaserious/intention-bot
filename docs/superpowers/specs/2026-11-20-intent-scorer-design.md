@@ -27,7 +27,7 @@
 
 ## 3. 제약
 
-- 모델: 사내 vLLM 서버의 `google/gemma-4-26B-A4B-it`, OpenAI 호환 API (`https://your-host.example/sllm/v1`). 임베딩 엔드포인트 없음, logprobs 지원
+- 모델: 사내 vLLM 서버의 `google/gemma-4-26B-A4B-it`, OpenAI 호환 API (`.env`의 `BASE_URL`). 임베딩 엔드포인트 없음, logprobs 지원
 - **로컬 모델이므로 병렬 요청 수를 제한한다.** 요청 폭주 시 서버 부담이 크다
 - 환경: conda `intention-bot` (Python 3.14.10), `openai` 패키지
 - 엔드포인트 주소와 API 키는 코드에 하드코딩하지 않고 환경변수/설정으로 받는다

@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-c = OpenAI(base_url="https://your-host.example/sllm/v1", api_key="EMPTY_KEY")
+c = OpenAI(base_url=__import__("dotenv").dotenv_values(".env")["BASE_URL"], api_key="EMPTY_KEY")
 M = "google/gemma-4-26B-A4B-it"
 
 INTENTS = {

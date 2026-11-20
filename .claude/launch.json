@@ -4,7 +4,7 @@
     {
       "name": "intent-ui",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "set INTENT_BASE_URL=https://your-host.example/sllm/v1&& set PYTHONIOENCODING=utf-8&& python -m intent_scorer.webapp"],
+      "runtimeArgs": ["/c", "set PYTHONIOENCODING=utf-8&& python -m intent_scorer.webapp"],
       "port": 8000
     }
   ]

@@ -25,3 +25,21 @@ def test_load_settings_timeout_defaults_and_overrides():
     base = {"INTENT_BASE_URL": "http://x/v1"}
     assert load_settings(base).timeout == 30.0
     assert load_settings({**base, "INTENT_TIMEOUT": "5"}).timeout == 5.0
+
+
+def test_load_settings_accepts_unprefixed_names_and_prefers_intent_prefix():
+    s = load_settings({"BASE_URL": "http://x/v1", "API_KEY": "k", "MODEL": "m"})
+    assert (s.base_url, s.api_key, s.model) == ("http://x/v1", "k", "m")
+    s = load_settings({"BASE_URL": "http://plain/v1", "INTENT_BASE_URL": "http://intent/v1"})
+    assert s.base_url == "http://intent/v1"
+
+
+def test_load_settings_reads_dotenv_file_but_real_env_wins(tmp_path, monkeypatch):
+    for k in ("INTENT_BASE_URL", "BASE_URL", "INTENT_API_KEY", "API_KEY", "INTENT_MODEL", "MODEL"):
+        monkeypatch.delenv(k, raising=False)
+    f = tmp_path / ".env"
+    f.write_text("BASE_URL=http://file/v1\nAPI_KEY=filekey\nMODEL=filemodel\n", encoding="utf-8")
+    s = load_settings(dotenv_path=f)
+    assert (s.base_url, s.api_key, s.model) == ("http://file/v1", "filekey", "filemodel")
+    monkeypatch.setenv("BASE_URL", "http://real/v1")
+    assert load_settings(dotenv_path=f).base_url == "http://real/v1"

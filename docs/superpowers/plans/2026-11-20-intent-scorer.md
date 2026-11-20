@@ -133,7 +133,7 @@ spikes/                   기존 spike_ab*.py 이동(보관용)
 - [ ] **Step 2: Run to verify fail** → FAIL
 - [ ] **Step 3: Implement** `eval/dataset.toml`: `[[case]]` + `utterance`, `expected = ["정착지원"]` (해당없음은 `[]`). 주신 16개 발화(정착 4·생활 4·소상공인 4·공장 4)와 설계 근거의 추가 8개(복합 4: 정착+생활 2, 정착+소상공인 1, 소상공인+공장 1 / 모호·무관 4: "지원금 받을 수 있나요?", "안녕하세요", "오늘 점심 뭐 먹지", "주민등록등본은 어떻게 발급받나요?")는 `spikes/spike_ab2.py`의 `GIVEN`/`EXTRA`에서 옮긴다. `evaluate.py`는 위 인터페이스대로. CLI는 `load_settings()`로 `OpenAI(base_url=..., api_key=...)`를 만들고 rotations마다 `IntentScorer`를 새로 만들어 평가. 케이스는 순차 실행(요청당 end-to-end 시간 측정). `README.md`에 환경 준비, 환경변수, 사용 예(`IntentScorer(...).score("...")`), 평가 실행법을 짧게.
 - [ ] **Step 4: Run to verify pass**: `conda run -n intention-bot python -m pytest -v` → 전부 통과
-- [ ] **Step 5: 실서버 평가 실행.** PowerShell에서 `$env:INTENT_BASE_URL="https://your-host.example/sllm/v1"` 설정 후 `conda run -n intention-bot python -m intent_scorer.evaluate --rotations 1 4`. 기대: `rotations=4`에서 `top1_accuracy ≈ 16/16`, 평균 지연이 1초 미만 (스파이크: A1 15/16 0.06초, A4 16/16 0.29초). 크게 다르면 원인을 확인하고 결과를 보고한다. 출력된 표를 `eval/results-2026-11-20.txt`에 저장.
+- [ ] **Step 5: 실서버 평가 실행.** PowerShell에서 `$env:INTENT_BASE_URL="<.env 의 BASE_URL>"` 설정 후 `conda run -n intention-bot python -m intent_scorer.evaluate --rotations 1 4`. 기대: `rotations=4`에서 `top1_accuracy ≈ 16/16`, 평균 지연이 1초 미만 (스파이크: A1 15/16 0.06초, A4 16/16 0.29초). 크게 다르면 원인을 확인하고 결과를 보고한다. 출력된 표를 `eval/results-2026-11-20.txt`에 저장.
 - [ ] **Step 6: Commit**: `git add -A && git commit -m "feat: evaluation script with latency metrics and dataset"`
 
 ---
