@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+from concurrent.futures import ThreadPoolExecutor
 from typing import Mapping, Sequence
 
 from .config import NONE_LABEL, Intent
@@ -32,3 +33,40 @@ def label_probs(top_logprobs: Mapping[str, float], n_options: int) -> list[float
     if total <= 0:
         return [0.0] * (n_options - 1) + [1.0]
     return [p / total for p in probs]
+
+
+class IntentScorer:
+    """Scores an utterance against intents; averages over cyclic option orders."""
+
+    def __init__(self, client, model: str, intents: Sequence[Intent], rotations: int | None = None,
+                 max_concurrency: int = 4):
+        self.client, self.model, self.intents = client, model, list(intents)
+        self.rotations = len(self.intents) if rotations is None else rotations
+        if not 1 <= self.rotations <= len(self.intents):
+            raise ValueError(f"rotations 는 1..{len(self.intents)} 이어야 합니다 (받은 값: {self.rotations})")
+        self._pool = ThreadPoolExecutor(max_workers=max_concurrency)
+
+    def _score_order(self, utterance: str, order: Sequence[Intent]) -> dict[str, float]:
+        resp = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": build_prompt(utterance, order)}],
+            max_tokens=1, logprobs=True, top_logprobs=20, temperature=0,
+        )
+        top = {t.token: t.logprob for t in resp.choices[0].logprobs.content[0].top_logprobs}
+        probs = label_probs(top, len(order) + 1)
+        return {**{it.name: p for it, p in zip(order, probs)}, NONE_LABEL: probs[-1]}
+
+    def score(self, utterance: str) -> dict[str, float]:
+        names = [it.name for it in self.intents] + [NONE_LABEL]
+        if not utterance.strip():
+            return {n: float(n == NONE_LABEL) for n in names}
+        orders = [self.intents[i:] + self.intents[:i] for i in range(self.rotations)]
+        results = list(self._pool.map(lambda o: self._score_order(utterance, o), orders))
+        return {n: sum(r[n] for r in results) / len(results) for n in names}
+
+
+def select_intents(scores: Mapping[str, float], threshold: float = 0.2) -> list[str]:
+    if scores.get(NONE_LABEL, 0.0) >= max(scores.values()):
+        return []
+    picked = [(n, s) for n, s in scores.items() if n != NONE_LABEL and s >= threshold]
+    return [n for n, _ in sorted(picked, key=lambda x: -x[1])]
